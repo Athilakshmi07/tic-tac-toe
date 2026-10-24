@@ -1,0 +1,262 @@
+﻿<div class="app-container">
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <span class="icon-x">✕</span>
+        <span class="icon-o">◯</span>
+      </div>
+      <div>
+        <h1 class="brand-title">TIC TAC TOE</h1>
+        <p class="brand-subtitle">Angular Frontend + .NET 8 Web API</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- API Connection Status Badge -->
+      <div class="status-badge" [class.connected]="isApiConnected" [class.disconnected]="!isApiConnected">
+        <span class="pulse-dot"></span>
+        <span>{{ isApiConnected ? 'API Connected' : 'Backend Offline' }}</span>
+      </div>
+
+      <!-- Sound Toggle -->
+      <button
+        id="btn-toggle-sound"
+        class="icon-btn"
+        (click)="toggleSound()"
+        [title]="soundService.isMuted ? 'Unmute Audio' : 'Mute Audio'"
+      >
+        <span *ngIf="!soundService.isMuted">🔊</span>
+        <span *ngIf="soundService.isMuted">🔇</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Error Alert Toast -->
+  <div *ngIf="errorMessage" class="error-toast" role="alert">
+    <span class="error-icon">⚠️</span>
+    <span class="error-text">{{ errorMessage }}</span>
+    <button class="toast-close" (click)="errorMessage = null">✕</button>
+  </div>
+
+  <main class="main-layout" *ngIf="game as g">
+    <!-- Left Column: Controls & Game Arena -->
+    <section class="game-section">
+      <!-- Game Mode Selector -->
+      <div class="mode-selector-wrapper">
+        <span class="selector-label">GAME MODE</span>
+        <div class="mode-tabs">
+          <button
+            id="mode-two-player"
+            class="mode-tab"
+            [class.active]="selectedMode === 'TwoPlayer'"
+            (click)="startNewGame('TwoPlayer')"
+          >
+            <span class="tab-icon">👥</span>
+            <span>Two Player</span>
+          </button>
+          <button
+            id="mode-computer"
+            class="mode-tab"
+            [class.active]="selectedMode === 'Computer'"
+            (click)="startNewGame('Computer')"
+          >
+            <span class="tab-icon">🤖</span>
+            <span>Vs Computer</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scoreboard Cards -->
+      <div class="scoreboard-grid" *ngIf="g.scoreboard as sb">
+        <div class="score-card player-x-card">
+          <div class="score-header">
+            <span class="player-badge-pill x-pill">X</span>
+            <span class="score-label">{{ g.mode === 'Computer' ? 'Human' : 'Player X' }}</span>
+          </div>
+          <div class="score-number">{{ sb.xWins }}</div>
+          <div class="score-footer">Wins</div>
+        </div>
+
+        <div class="score-card draws-card">
+          <div class="score-header">
+            <span class="player-badge-pill draw-pill">═</span>
+            <span class="score-label">Draws</span>
+          </div>
+          <div class="score-number">{{ sb.draws }}</div>
+          <div class="score-footer">Tied Games</div>
+        </div>
+
+        <div class="score-card player-o-card">
+          <div class="score-header">
+            <span class="player-badge-pill o-pill">O</span>
+            <span class="score-label">{{ g.mode === 'Computer' ? 'Computer' : 'Player O' }}</span>
+          </div>
+          <div class="score-number">{{ sb.oWins }}</div>
+          <div class="score-footer">Wins</div>
+        </div>
+      </div>
+
+      <!-- Game Status Banner -->
+      <div class="status-banner" [ngClass]="g.status.toLowerCase()">
+        <ng-container *ngIf="g.status === 'InProgress'">
+          <div class="turn-indicator">
+            <span class="turn-ping" [class.is-x]="g.currentPlayer === 'X'" [class.is-o]="g.currentPlayer === 'O'"></span>
+            <span class="turn-text">
+              Current Turn:
+              <strong [class.x-text]="g.currentPlayer === 'X'" [class.o-text]="g.currentPlayer === 'O'">
+                {{ g.currentPlayer }}
+                <span class="role-desc">
+                  ({{ g.mode === 'Computer' ? (g.currentPlayer === 'X' ? 'You' : 'Computer') : 'Player ' + g.currentPlayer }})
+                </span>
+              </strong>
+            </span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="g.status === 'Won'">
+          <div class="win-message">
+            <span class="trophy-icon">🏆</span>
+            <span class="win-text">
+              Winner:
+              <strong [class.x-text]="g.winner === 'X'" [class.o-text]="g.winner === 'O'">
+                Player {{ g.winner }}
+                {{ g.mode === 'Computer' ? (g.winner === 'X' ? '(You Won!)' : '(Computer Won)') : '' }}
+              </strong>
+            </span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="g.status === 'Draw'">
+          <div class="draw-message">
+            <span class="draw-icon">🤝</span>
+            <span class="draw-text">Game Over: <strong>It's a Draw!</strong></span>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- 3x3 Tic Tac Toe Board -->
+      <div class="board-wrapper">
+        <div class="board-grid" [class.locked]="g.status !== 'InProgress'">
+          <ng-container *ngFor="let row of g.board; let r = index">
+            <button
+              *ngFor="let cell of row; let c = index"
+              [id]="'cell-' + r + '-' + c"
+              class="board-cell"
+              [class.cell-x]="cell === 'X'"
+              [class.cell-o]="cell === 'O'"
+              [class.winning-cell]="isWinningCell(r, c)"
+              [class.empty]="cell === ''"
+              [disabled]="cell !== '' || g.status !== 'InProgress' || (g.mode === 'Computer' && g.currentPlayer !== 'X') || isLoading"
+              (click)="onCellClick(r, c)"
+              [attr.aria-label]="'Row ' + (r + 1) + ', Column ' + (c + 1) + (cell ? ': ' + cell : ': Empty')"
+            >
+              <span *ngIf="cell === 'X'" class="mark mark-x">✕</span>
+              <span *ngIf="cell === 'O'" class="mark mark-o">◯</span>
+              <!-- Hover preview mark for empty cell -->
+              <span *ngIf="cell === '' && g.status === 'InProgress'" class="ghost-mark" [class.ghost-x]="g.currentPlayer === 'X'" [class.ghost-o]="g.currentPlayer === 'O'">
+                {{ g.currentPlayer === 'X' ? '✕' : '◯' }}
+              </span>
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Action Controls -->
+      <div class="action-bar">
+        <button
+          id="btn-undo-move"
+          class="btn btn-secondary"
+          [disabled]="!canUndo() || isLoading"
+          (click)="undo()"
+          title="Restore the previous valid state"
+        >
+          <span class="btn-icon">⟲</span>
+          <span>Undo Last Move</span>
+        </button>
+
+        <button
+          id="btn-reset-game"
+          class="btn btn-secondary"
+          [disabled]="isLoading || (g.moveHistory.length === 0 && g.status === 'InProgress')"
+          (click)="resetCurrentGame()"
+          title="Clear board and start fresh game"
+        >
+          <span class="btn-icon">🔄</span>
+          <span>Reset Game</span>
+        </button>
+
+        <button
+          id="btn-new-game"
+          class="btn btn-primary"
+          [disabled]="isLoading"
+          (click)="startNewGame()"
+          title="Start a new session"
+        >
+          <span class="btn-icon">✨</span>
+          <span>New Game</span>
+        </button>
+      </div>
+
+      <!-- Scoreboard Reset Trigger -->
+      <div class="scoreboard-action-row">
+        <button
+          id="btn-reset-scoreboard"
+          class="btn-text-muted"
+          (click)="resetScoreboard()"
+          [disabled]="isLoading"
+        >
+          <span>Reset Scoreboard</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Right Column: Move History Feed -->
+    <aside class="history-section">
+      <div class="history-card">
+        <div class="history-header">
+          <div class="history-title-group">
+            <span class="history-icon">📜</span>
+            <h2 class="history-title">Move History</h2>
+          </div>
+          <span class="move-count-badge">
+            {{ g.moveHistory.length }} {{ (g.moveHistory.length === 1) ? 'Move' : 'Moves' }}
+          </span>
+        </div>
+
+        <div class="history-content">
+          <div *ngIf="g.moveHistory.length === 0" class="history-empty">
+            <div class="empty-icon">🎯</div>
+            <p class="empty-title">No moves recorded yet</p>
+            <p class="empty-sub">Make your first move on the board to begin the game.</p>
+          </div>
+
+          <div *ngIf="g.moveHistory.length > 0" class="table-container">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Player</th>
+                  <th>Position</th>
+                  <th class="time-col">Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let move of g.moveHistory" class="history-row">
+                  <td class="move-num">{{ move.moveNumber }}</td>
+                  <td>
+                    <span class="player-mini-tag" [class.tag-x]="move.player === 'X'" [class.tag-o]="move.player === 'O'">
+                      {{ move.player }}
+                    </span>
+                  </td>
+                  <td class="pos-text">{{ move.position }}</td>
+                  <td class="time-col time-text">{{ move.timestamp | date:'HH:mm:ss' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
