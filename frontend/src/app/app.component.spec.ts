@@ -66,14 +66,15 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.brand-title')?.textContent).toContain('TIC TAC TOE');
+    expect(compiled.querySelector('.brand-title')?.textContent).toContain('TIC');
+    expect(compiled.querySelector('.brand-title')?.textContent).toContain('TOE');
   });
 
   it('should render all 9 cells on the board', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const cells = compiled.querySelectorAll('.board-cell');
+    const cells = compiled.querySelectorAll('.cyber-cell');
     expect(cells.length).toBe(9);
   });
 });

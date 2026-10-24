@@ -1,36 +1,42 @@
 ﻿:root {
-  --bg-main: #090d16;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #17223b 0%, #090d16 70%);
-  --surface-card: rgba(18, 26, 43, 0.75);
-  --surface-card-hover: rgba(28, 39, 64, 0.85);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --surface-border-bright: rgba(255, 255, 255, 0.18);
+  /* Ultra-modern Cyber-Luxe Color Palette */
+  --bg-dark: #070913;
+  --bg-deep: #0b0f19;
+  --bg-card: rgba(14, 20, 36, 0.7);
+  --bg-card-hover: rgba(22, 32, 56, 0.85);
 
-  --color-x: #00e5ff;
-  --color-x-glow: rgba(0, 229, 255, 0.35);
-  --color-x-dark: #0099b8;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-glow: rgba(0, 240, 255, 0.3);
 
-  --color-o: #ff2a85;
-  --color-o-glow: rgba(255, 42, 133, 0.35);
-  --color-o-dark: #b81458;
+  /* Player X: Electric Cyber Cyan */
+  --color-x: #00f0ff;
+  --color-x-grad: linear-gradient(135deg, #00f0ff 0%, #0077fe 100%);
+  --color-x-glow: 0 0 20px rgba(0, 240, 255, 0.55), 0 0 45px rgba(0, 240, 255, 0.25);
 
-  --color-draw: #ffb703;
-  --color-draw-glow: rgba(255, 183, 3, 0.35);
+  /* Player O: Hyper-Neon Magenta */
+  --color-o: #ff007f;
+  --color-o-grad: linear-gradient(135deg, #ff007f 0%, #a800ff 100%);
+  --color-o-glow: 0 0 20px rgba(255, 0, 127, 0.55), 0 0 45px rgba(255, 0, 127, 0.25);
 
+  /* Victory Gold / Aurora Emerald */
   --color-win: #10b981;
-  --color-win-glow: rgba(16, 185, 129, 0.45);
+  --color-win-grad: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --color-gold: #ffbe0b;
+  --color-gold-glow: 0 0 25px rgba(255, 190, 11, 0.6);
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
 
   --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
 }
 
 * {
@@ -39,32 +45,78 @@
   padding: 0;
 }
 
+html, body {
+  min-height: 100%;
+}
+
 body {
   font-family: var(--font-body);
-  background: var(--bg-main);
-  background-image: var(--bg-gradient);
-  background-attachment: fixed;
-  color: var(--text-main);
-  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
   line-height: 1.5;
+  overflow-x: hidden;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Background Ambient Dynamic Glow Orbs */
+body::before {
+  content: '';
+  position: fixed;
+  top: -15%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, rgba(0, 119, 254, 0.05) 50%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: floatOrbLeft 22s infinite alternate ease-in-out;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(255, 0, 127, 0.1) 0%, rgba(168, 0, 255, 0.05) 50%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  animation: floatOrbRight 26s infinite alternate ease-in-out;
+}
+
+@keyframes floatOrbLeft {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 80px) scale(1.1); }
+  100% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+@keyframes floatOrbRight {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-80px, -60px) scale(1.15); }
+  100% { transform: translate(40px, -30px) scale(0.9); }
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(11, 15, 25, 0.8);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.3), rgba(255, 0, 127, 0.3));
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.6), rgba(255, 0, 127, 0.6));
 }
 
 button {
@@ -72,10 +124,5 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
+  user-select: none;
 }

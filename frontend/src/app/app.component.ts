@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { TicTacToeService } from './services/tic-tac-toe.service';
 import { SoundService } from './services/sound.service';
-import { GameStateResponse, Scoreboard } from './models/game.models';
+import { GameStateResponse } from './models/game.models';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +20,17 @@ export class AppComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
   isApiConnected = true;
+
+  // 24 procedural celebration confetti pieces
+  confettiPieces = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 0.8,
+    duration: 1.8 + Math.random() * 1.5,
+    size: 6 + Math.random() * 8,
+    color: ['#00f0ff', '#ff007f', '#ffbe0b', '#10b981', '#a800ff'][i % 5],
+    rotation: Math.random() * 360
+  }));
 
   ngOnInit() {
     this.startNewGame(this.selectedMode);
@@ -50,10 +61,8 @@ export class AppComponent implements OnInit {
     if (this.game.status !== 'InProgress') return;
     if (this.game.board[row][col] !== '') return;
 
-    // In computer mode, human is always X
     if (this.game.mode === 'Computer' && this.game.currentPlayer !== 'X') return;
 
-    const previousStatus = this.game.status;
     const playerMakingMove = this.game.currentPlayer;
     this.isLoading = true;
     this.errorMessage = null;
@@ -143,7 +152,6 @@ export class AppComponent implements OnInit {
 
   canUndo(): boolean {
     if (!this.game) return false;
-    // Option A: Undo is disabled after completion
     if (this.game.status !== 'InProgress') return false;
     return (this.game.moveHistory?.length ?? 0) > 0;
   }
@@ -151,6 +159,11 @@ export class AppComponent implements OnInit {
   isWinningCell(row: number, col: number): boolean {
     if (!this.game || this.game.status !== 'Won' || !this.game.winningCells) return false;
     return this.game.winningCells.some(c => c.row === row && c.column === col);
+  }
+
+  isLatestMove(moveNumber: number): boolean {
+    if (!this.game?.moveHistory || this.game.moveHistory.length === 0) return false;
+    return this.game.moveHistory[this.game.moveHistory.length - 1].moveNumber === moveNumber;
   }
 
   toggleSound() {

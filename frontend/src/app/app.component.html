@@ -1,256 +1,318 @@
 ﻿<div class="app-container">
-  <!-- Top Header -->
+  <!-- Confetti Celebration Burst (active on victory) -->
+  <div *ngIf="game?.status === 'Won'" class="confetti-overlay" aria-hidden="true">
+    <div
+      *ngFor="let piece of confettiPieces"
+      class="confetti-particle"
+      [style.left.%]="piece.left"
+      [style.animationDelay.s]="piece.delay"
+      [style.animationDuration.s]="piece.duration"
+      [style.width.px]="piece.size"
+      [style.height.px]="piece.size * 1.5"
+      [style.backgroundColor]="piece.color"
+      [style.transform]="'rotate(' + piece.rotation + 'deg)'"
+    ></div>
+  </div>
+
+  <!-- Top Glass Header -->
   <header class="app-header">
     <div class="brand">
-      <div class="brand-icon">
-        <span class="icon-x">✕</span>
-        <span class="icon-o">◯</span>
+      <div class="brand-logo-glow">
+        <svg class="brand-logo-svg" viewBox="0 0 64 64" fill="none">
+          <line x1="14" y1="14" x2="34" y2="34" stroke="url(#x-grad)" stroke-width="6" stroke-linecap="round"/>
+          <line x1="34" y1="14" x2="14" y2="34" stroke="url(#x-grad)" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="44" cy="44" r="12" stroke="url(#o-grad)" stroke-width="5" fill="none"/>
+          <defs>
+            <linearGradient id="x-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="100%" stop-color="#0077fe"/>
+            </linearGradient>
+            <linearGradient id="o-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff007f"/>
+              <stop offset="100%" stop-color="#a800ff"/>
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
-      <div>
-        <h1 class="brand-title">TIC TAC TOE</h1>
-        <p class="brand-subtitle">Angular Frontend + .NET 8 Web API</p>
+      <div class="brand-text">
+        <h1 class="brand-title">TIC <span class="title-dot">•</span> TAC <span class="title-dot">•</span> TOE</h1>
+        <p class="brand-tagline">Angular 18 & .NET 8 Web API Local Engine</p>
       </div>
     </div>
 
     <div class="header-actions">
-      <!-- API Connection Status Badge -->
+      <!-- Live API Health Indicator -->
       <div class="status-badge" [class.connected]="isApiConnected" [class.disconnected]="!isApiConnected">
-        <span class="pulse-dot"></span>
-        <span>{{ isApiConnected ? 'API Connected' : 'Backend Offline' }}</span>
+        <span class="status-ring"></span>
+        <span class="status-label">{{ isApiConnected ? 'API Connected' : 'Backend Offline' }}</span>
       </div>
 
-      <!-- Sound Toggle -->
+      <!-- Sound FX Toggle -->
       <button
         id="btn-toggle-sound"
-        class="icon-btn"
+        class="icon-button"
         (click)="toggleSound()"
         [title]="soundService.isMuted ? 'Unmute Audio' : 'Mute Audio'"
       >
-        <span *ngIf="!soundService.isMuted">🔊</span>
-        <span *ngIf="soundService.isMuted">🔇</span>
+        <span class="btn-sound-icon">{{ soundService.isMuted ? '🔇' : '🔊' }}</span>
       </button>
     </div>
   </header>
 
-  <!-- Error Alert Toast -->
+  <!-- Error Alert Toast Notification -->
   <div *ngIf="errorMessage" class="error-toast" role="alert">
+    <div class="toast-indicator"></div>
     <span class="error-icon">⚠️</span>
     <span class="error-text">{{ errorMessage }}</span>
-    <button class="toast-close" (click)="errorMessage = null">✕</button>
+    <button class="toast-close" (click)="errorMessage = null" aria-label="Dismiss">✕</button>
   </div>
 
   <main class="main-layout" *ngIf="game as g">
-    <!-- Left Column: Controls & Game Arena -->
-    <section class="game-section">
-      <!-- Game Mode Selector -->
-      <div class="mode-selector-wrapper">
-        <span class="selector-label">GAME MODE</span>
-        <div class="mode-tabs">
+    <!-- Left Column: Arena & Game Controls -->
+    <section class="arena-card">
+      <!-- Game Mode Selection Pill -->
+      <div class="mode-control-group">
+        <span class="section-micro-label">SELECT OPPONENT</span>
+        <div class="mode-pill-toggle">
           <button
             id="mode-two-player"
-            class="mode-tab"
+            class="mode-btn"
             [class.active]="selectedMode === 'TwoPlayer'"
             (click)="startNewGame('TwoPlayer')"
           >
-            <span class="tab-icon">👥</span>
-            <span>Two Player</span>
+            <span class="mode-icon">👥</span>
+            <span class="mode-text">Two Player</span>
           </button>
           <button
             id="mode-computer"
-            class="mode-tab"
+            class="mode-btn"
             [class.active]="selectedMode === 'Computer'"
             (click)="startNewGame('Computer')"
           >
-            <span class="tab-icon">🤖</span>
-            <span>Vs Computer</span>
+            <span class="mode-icon">🤖</span>
+            <span class="mode-text">Vs Computer</span>
           </button>
         </div>
       </div>
 
-      <!-- Scoreboard Cards -->
-      <div class="scoreboard-grid" *ngIf="g.scoreboard as sb">
-        <div class="score-card player-x-card">
-          <div class="score-header">
-            <span class="player-badge-pill x-pill">X</span>
-            <span class="score-label">{{ g.mode === 'Computer' ? 'Human' : 'Player X' }}</span>
+      <!-- Neon Glass Scoreboard -->
+      <div class="scoreboard-row" *ngIf="g.scoreboard as sb">
+        <!-- Player X Card -->
+        <div class="score-glass-card card-x">
+          <div class="score-card-glow"></div>
+          <div class="score-badge">
+            <span class="player-symbol-x">✕</span>
+            <span class="player-name">{{ g.mode === 'Computer' ? 'Human (X)' : 'Player X' }}</span>
           </div>
-          <div class="score-number">{{ sb.xWins }}</div>
-          <div class="score-footer">Wins</div>
+          <div class="score-value">{{ sb.xWins }}</div>
+          <div class="score-stat-label">Victories</div>
         </div>
 
-        <div class="score-card draws-card">
-          <div class="score-header">
-            <span class="player-badge-pill draw-pill">═</span>
-            <span class="score-label">Draws</span>
+        <!-- Draws Card -->
+        <div class="score-glass-card card-draw">
+          <div class="score-card-glow"></div>
+          <div class="score-badge">
+            <span class="player-symbol-draw">═</span>
+            <span class="player-name">Draws</span>
           </div>
-          <div class="score-number">{{ sb.draws }}</div>
-          <div class="score-footer">Tied Games</div>
+          <div class="score-value">{{ sb.draws }}</div>
+          <div class="score-stat-label">Tied Matches</div>
         </div>
 
-        <div class="score-card player-o-card">
-          <div class="score-header">
-            <span class="player-badge-pill o-pill">O</span>
-            <span class="score-label">{{ g.mode === 'Computer' ? 'Computer' : 'Player O' }}</span>
+        <!-- Player O Card -->
+        <div class="score-glass-card card-o">
+          <div class="score-card-glow"></div>
+          <div class="score-badge">
+            <span class="player-symbol-o">◯</span>
+            <span class="player-name">{{ g.mode === 'Computer' ? 'Computer (O)' : 'Player O' }}</span>
           </div>
-          <div class="score-number">{{ sb.oWins }}</div>
-          <div class="score-footer">Wins</div>
+          <div class="score-value">{{ sb.oWins }}</div>
+          <div class="score-stat-label">Victories</div>
         </div>
       </div>
 
-      <!-- Game Status Banner -->
-      <div class="status-banner" [ngClass]="g.status.toLowerCase()">
-        <ng-container *ngIf="g.status === 'InProgress'">
-          <div class="turn-indicator">
-            <span class="turn-ping" [class.is-x]="g.currentPlayer === 'X'" [class.is-o]="g.currentPlayer === 'O'"></span>
-            <span class="turn-text">
+      <!-- Turn & Game Outcome Banner -->
+      <div class="state-banner" [ngClass]="g.status.toLowerCase()">
+        <!-- In Progress Banner -->
+        <div *ngIf="g.status === 'InProgress'" class="banner-content inprogress-content">
+          <div class="turn-halo" [class.halo-x]="g.currentPlayer === 'X'" [class.halo-o]="g.currentPlayer === 'O'">
+            <span class="turn-avatar">{{ g.currentPlayer === 'X' ? '⚡' : (g.mode === 'Computer' ? '🤖' : '🔮') }}</span>
+          </div>
+          <div class="turn-details">
+            <span class="turn-headline">
               Current Turn:
-              <strong [class.x-text]="g.currentPlayer === 'X'" [class.o-text]="g.currentPlayer === 'O'">
-                {{ g.currentPlayer }}
-                <span class="role-desc">
-                  ({{ g.mode === 'Computer' ? (g.currentPlayer === 'X' ? 'You' : 'Computer') : 'Player ' + g.currentPlayer }})
-                </span>
-              </strong>
+              <span class="player-tag" [class.tag-x]="g.currentPlayer === 'X'" [class.tag-o]="g.currentPlayer === 'O'">
+                Player {{ g.currentPlayer }}
+              </span>
+            </span>
+            <span class="turn-sub">
+              {{ g.mode === 'Computer' ? (g.currentPlayer === 'X' ? 'Your turn to move' : 'Computer calculating move...') : 'Waiting for Player ' + g.currentPlayer }}
             </span>
           </div>
-        </ng-container>
+        </div>
 
-        <ng-container *ngIf="g.status === 'Won'">
-          <div class="win-message">
-            <span class="trophy-icon">🏆</span>
-            <span class="win-text">
-              Winner:
-              <strong [class.x-text]="g.winner === 'X'" [class.o-text]="g.winner === 'O'">
-                Player {{ g.winner }}
-                {{ g.mode === 'Computer' ? (g.winner === 'X' ? '(You Won!)' : '(Computer Won)') : '' }}
-              </strong>
-            </span>
+        <!-- Won Banner -->
+        <div *ngIf="g.status === 'Won'" class="banner-content won-content">
+          <div class="trophy-bounce">🏆</div>
+          <div class="won-details">
+            <h3 class="won-headline">
+              <span [class.x-glow-text]="g.winner === 'X'" [class.o-glow-text]="g.winner === 'O'">
+                {{ g.mode === 'Computer' ? (g.winner === 'X' ? 'Victory! You Won!' : 'Defeat! Computer Won!') : 'Player ' + g.winner + ' Wins!' }}
+              </span>
+            </h3>
+            <p class="won-sub">3 in a line completed successfully</p>
           </div>
-        </ng-container>
+        </div>
 
-        <ng-container *ngIf="g.status === 'Draw'">
-          <div class="draw-message">
-            <span class="draw-icon">🤝</span>
-            <span class="draw-text">Game Over: <strong>It's a Draw!</strong></span>
+        <!-- Draw Banner -->
+        <div *ngIf="g.status === 'Draw'" class="banner-content draw-content">
+          <div class="draw-shake">🤝</div>
+          <div class="draw-details">
+            <h3 class="draw-headline">Stalemate! Game Drawn</h3>
+            <p class="draw-sub">All 9 cells filled with no decisive winner</p>
           </div>
-        </ng-container>
+        </div>
       </div>
 
-      <!-- 3x3 Tic Tac Toe Board -->
-      <div class="board-wrapper">
-        <div class="board-grid" [class.locked]="g.status !== 'InProgress'">
+      <!-- 3x3 Cyber Board -->
+      <div class="board-frame">
+        <div class="board-grid" [class.game-locked]="g.status !== 'InProgress'">
           <ng-container *ngFor="let row of g.board; let r = index">
             <button
               *ngFor="let cell of row; let c = index"
               [id]="'cell-' + r + '-' + c"
-              class="board-cell"
-              [class.cell-x]="cell === 'X'"
-              [class.cell-o]="cell === 'O'"
-              [class.winning-cell]="isWinningCell(r, c)"
-              [class.empty]="cell === ''"
+              class="cyber-cell"
+              [class.cell-has-x]="cell === 'X'"
+              [class.cell-has-o]="cell === 'O'"
+              [class.cell-winning]="isWinningCell(r, c)"
+              [class.cell-empty]="cell === ''"
               [disabled]="cell !== '' || g.status !== 'InProgress' || (g.mode === 'Computer' && g.currentPlayer !== 'X') || isLoading"
               (click)="onCellClick(r, c)"
               [attr.aria-label]="'Row ' + (r + 1) + ', Column ' + (c + 1) + (cell ? ': ' + cell : ': Empty')"
             >
-              <span *ngIf="cell === 'X'" class="mark mark-x">✕</span>
-              <span *ngIf="cell === 'O'" class="mark mark-o">◯</span>
-              <!-- Hover preview mark for empty cell -->
-              <span *ngIf="cell === '' && g.status === 'InProgress'" class="ghost-mark" [class.ghost-x]="g.currentPlayer === 'X'" [class.ghost-o]="g.currentPlayer === 'O'">
-                {{ g.currentPlayer === 'X' ? '✕' : '◯' }}
-              </span>
+              <!-- Cell background glow sweep -->
+              <span class="cell-hover-glow"></span>
+
+              <!-- Animated SVG Mark X -->
+              <svg *ngIf="cell === 'X'" class="mark-svg svg-x" viewBox="0 0 60 60">
+                <line class="anim-line stroke-1" x1="14" y1="14" x2="46" y2="46" stroke="#00f0ff" stroke-width="7" stroke-linecap="round"/>
+                <line class="anim-line stroke-2" x1="46" y1="14" x2="14" y2="46" stroke="#00f0ff" stroke-width="7" stroke-linecap="round"/>
+              </svg>
+
+              <!-- Animated SVG Mark O -->
+              <svg *ngIf="cell === 'O'" class="mark-svg svg-o" viewBox="0 0 60 60">
+                <circle class="anim-circle" cx="30" cy="30" r="18" stroke="#ff007f" stroke-width="7" stroke-linecap="round" fill="none"/>
+              </svg>
+
+              <!-- Ghost Mark on Hover (When Empty & In Progress) -->
+              <div *ngIf="cell === '' && g.status === 'InProgress'" class="ghost-wrapper">
+                <span *ngIf="g.currentPlayer === 'X'" class="ghost-svg-x">✕</span>
+                <span *ngIf="g.currentPlayer === 'O'" class="ghost-svg-o">◯</span>
+              </div>
             </button>
           </ng-container>
         </div>
       </div>
 
-      <!-- Action Controls -->
-      <div class="action-bar">
+      <!-- Controls & Quick Actions -->
+      <div class="controls-toolbar">
         <button
           id="btn-undo-move"
-          class="btn btn-secondary"
+          class="action-btn btn-undo"
           [disabled]="!canUndo() || isLoading"
           (click)="undo()"
-          title="Restore the previous valid state"
+          title="Roll back to previous valid game state"
         >
-          <span class="btn-icon">⟲</span>
-          <span>Undo Last Move</span>
+          <span class="btn-icon-spin">⟲</span>
+          <span class="btn-label">Undo Move</span>
         </button>
 
         <button
           id="btn-reset-game"
-          class="btn btn-secondary"
+          class="action-btn btn-reset"
           [disabled]="isLoading || (g.moveHistory.length === 0 && g.status === 'InProgress')"
           (click)="resetCurrentGame()"
-          title="Clear board and start fresh game"
+          title="Clear board and start fresh game round"
         >
-          <span class="btn-icon">🔄</span>
-          <span>Reset Game</span>
+          <span class="btn-icon-rotate">🔄</span>
+          <span class="btn-label">Reset Game</span>
         </button>
 
         <button
           id="btn-new-game"
-          class="btn btn-primary"
+          class="action-btn btn-new"
           [disabled]="isLoading"
           (click)="startNewGame()"
-          title="Start a new session"
+          title="Create a fresh session"
         >
-          <span class="btn-icon">✨</span>
-          <span>New Game</span>
+          <span class="btn-icon-sparkle">✨</span>
+          <span class="btn-label">New Game</span>
         </button>
       </div>
 
-      <!-- Scoreboard Reset Trigger -->
-      <div class="scoreboard-action-row">
+      <!-- Scoreboard Reset Link -->
+      <div class="scoreboard-footer-link">
         <button
           id="btn-reset-scoreboard"
-          class="btn-text-muted"
+          class="link-btn-reset"
           (click)="resetScoreboard()"
           [disabled]="isLoading"
         >
-          <span>Reset Scoreboard</span>
+          <span>Clear Scoreboard History</span>
         </button>
       </div>
     </section>
 
-    <!-- Right Column: Move History Feed -->
-    <aside class="history-section">
-      <div class="history-card">
-        <div class="history-header">
-          <div class="history-title-group">
-            <span class="history-icon">📜</span>
-            <h2 class="history-title">Move History</h2>
+    <!-- Right Column: Move History Panel -->
+    <aside class="history-panel">
+      <div class="history-glass-box">
+        <div class="history-box-header">
+          <div class="history-title-wrapper">
+            <span class="history-badge-icon">📜</span>
+            <h2 class="history-box-title">Move History</h2>
           </div>
-          <span class="move-count-badge">
-            {{ g.moveHistory.length }} {{ (g.moveHistory.length === 1) ? 'Move' : 'Moves' }}
+          <span class="move-counter-chip">
+            {{ g.moveHistory.length }} {{ g.moveHistory.length === 1 ? 'Move' : 'Moves' }}
           </span>
         </div>
 
-        <div class="history-content">
-          <div *ngIf="g.moveHistory.length === 0" class="history-empty">
-            <div class="empty-icon">🎯</div>
-            <p class="empty-title">No moves recorded yet</p>
-            <p class="empty-sub">Make your first move on the board to begin the game.</p>
+        <div class="history-box-body">
+          <!-- Empty State -->
+          <div *ngIf="g.moveHistory.length === 0" class="empty-feed">
+            <div class="empty-feed-graphic">
+              <span class="empty-icon-radar">🎯</span>
+            </div>
+            <h4 class="empty-feed-title">No moves logged</h4>
+            <p class="empty-feed-subtitle">Click any open tile on the board to make your initial move.</p>
           </div>
 
-          <div *ngIf="g.moveHistory.length > 0" class="table-container">
-            <table class="history-table">
+          <!-- Move Log Table -->
+          <div *ngIf="g.moveHistory.length > 0" class="history-table-wrapper">
+            <table class="cyber-table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Player</th>
-                  <th>Position</th>
-                  <th class="time-col">Time</th>
+                  <th class="col-index">#</th>
+                  <th class="col-player">Player</th>
+                  <th class="col-pos">Coordinate</th>
+                  <th class="col-time">Time</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let move of g.moveHistory" class="history-row">
-                  <td class="move-num">{{ move.moveNumber }}</td>
-                  <td>
-                    <span class="player-mini-tag" [class.tag-x]="move.player === 'X'" [class.tag-o]="move.player === 'O'">
+                <tr
+                  *ngFor="let move of g.moveHistory"
+                  class="cyber-row"
+                  [class.latest-move]="isLatestMove(move.moveNumber)"
+                >
+                  <td class="col-index cell-index">{{ move.moveNumber }}</td>
+                  <td class="col-player">
+                    <span class="player-chip" [class.chip-x]="move.player === 'X'" [class.chip-o]="move.player === 'O'">
                       {{ move.player }}
                     </span>
                   </td>
-                  <td class="pos-text">{{ move.position }}</td>
-                  <td class="time-col time-text">{{ move.timestamp | date:'HH:mm:ss' }}</td>
+                  <td class="col-pos cell-pos">
+                    <span class="pos-badge">{{ move.position }}</span>
+                  </td>
+                  <td class="col-time cell-time">{{ move.timestamp | date:'HH:mm:ss' }}</td>
                 </tr>
               </tbody>
             </table>
