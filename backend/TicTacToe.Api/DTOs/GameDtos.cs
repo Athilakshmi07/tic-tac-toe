@@ -5,6 +5,7 @@ namespace TicTacToe.Api.DTOs;
 public class CreateGameRequest
 {
     public string Mode { get; set; } = GameConstants.ModeTwoPlayer;
+    public string Difficulty { get; set; } = GameConstants.DifficultyUnbeatable;
 }
 
 public class MakeMoveRequest
@@ -20,6 +21,7 @@ public class GameStateResponse
     public string[][] Board { get; set; } = Array.Empty<string[]>();
     public string CurrentPlayer { get; set; } = string.Empty;
     public string Mode { get; set; } = string.Empty;
+    public string Difficulty { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string? Winner { get; set; }
     public List<CellCoordinate> WinningCells { get; set; } = new();
@@ -34,6 +36,7 @@ public class GameStateResponse
             Board = state.Board.Select(row => (string[])row.Clone()).ToArray(),
             CurrentPlayer = state.CurrentPlayer,
             Mode = state.Mode,
+            Difficulty = state.Difficulty,
             Status = state.Status,
             Winner = state.Winner,
             WinningCells = new List<CellCoordinate>(state.WinningCells),

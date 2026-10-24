@@ -11,8 +11,8 @@ export class TicTacToeService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5000/api';
 
-  createGame(mode: 'TwoPlayer' | 'Computer'): Observable<GameStateResponse> {
-    const payload: CreateGameRequest = { mode };
+  createGame(mode: 'TwoPlayer' | 'Computer', difficulty: 'Unbeatable' | 'Standard' = 'Unbeatable'): Observable<GameStateResponse> {
+    const payload: CreateGameRequest = { mode, difficulty };
     return this.http.post<GameStateResponse>(`${this.apiUrl}/games`, payload).pipe(
       catchError(this.handleError)
     );

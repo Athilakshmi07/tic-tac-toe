@@ -9,6 +9,9 @@ public static class GameConstants
     public const string ModeTwoPlayer = "TwoPlayer";
     public const string ModeComputer = "Computer";
 
+    public const string DifficultyUnbeatable = "Unbeatable";
+    public const string DifficultyStandard = "Standard";
+
     public const string StatusInProgress = "InProgress";
     public const string StatusWon = "Won";
     public const string StatusDraw = "Draw";
@@ -57,6 +60,7 @@ public class GameState
     };
     public string CurrentPlayer { get; set; } = GameConstants.PlayerX;
     public string Mode { get; set; } = GameConstants.ModeTwoPlayer;
+    public string Difficulty { get; set; } = GameConstants.DifficultyUnbeatable;
     public string Status { get; set; } = GameConstants.StatusInProgress;
     public string? Winner { get; set; }
     public List<CellCoordinate> WinningCells { get; set; } = new();

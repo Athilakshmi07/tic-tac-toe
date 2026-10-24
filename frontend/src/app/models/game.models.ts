@@ -24,6 +24,7 @@ export interface GameStateResponse {
   board: string[][];
   currentPlayer: string;
   mode: 'TwoPlayer' | 'Computer';
+  difficulty: 'Unbeatable' | 'Standard';
   status: 'InProgress' | 'Won' | 'Draw';
   winner: string | null;
   winningCells: CellCoordinate[];
@@ -33,6 +34,7 @@ export interface GameStateResponse {
 
 export interface CreateGameRequest {
   mode: 'TwoPlayer' | 'Computer';
+  difficulty?: 'Unbeatable' | 'Standard';
 }
 
 export interface MakeMoveRequest {

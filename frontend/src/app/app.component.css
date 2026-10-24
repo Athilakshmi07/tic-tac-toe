@@ -977,3 +977,56 @@
   font-size: 0.76rem;
   color: var(--text-tertiary);
 }
+/* Difficulty Controls */
+.difficulty-control-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.difficulty-pill-toggle {
+  display: flex;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-medium);
+  padding: 4px;
+  border-radius: 999px;
+  gap: 4px;
+}
+
+.diff-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: all 0.25s ease;
+}
+
+.diff-btn:hover {
+  color: #fff;
+}
+
+.diff-btn.active {
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.35) 0%, rgba(168, 0, 255, 0.35) 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 0, 127, 0.6);
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+}
+
+.difficulty-hint {
+  font-size: 0.78rem;
+  color: #f472b6;
+  text-align: center;
+}

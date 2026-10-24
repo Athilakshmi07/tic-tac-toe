@@ -21,9 +21,10 @@ public class GamesController : ControllerBase
     public ActionResult<GameStateResponse> CreateGame([FromBody] CreateGameRequest? request)
     {
         var mode = request?.Mode;
-        var game = _gameService.CreateGame(mode);
+        var difficulty = request?.Difficulty;
+        var game = _gameService.CreateGame(mode, difficulty);
         var scoreboard = _gameService.GetScoreboard();
-        _logger.LogInformation("Created new game {GameId} with mode {Mode}", game.Id, game.Mode);
+        _logger.LogInformation("Created new game {GameId} with mode {Mode} and difficulty {Difficulty}", game.Id, game.Mode, game.Difficulty);
         return CreatedAtAction(nameof(GetGame), new { id = game.Id }, GameStateResponse.FromState(game, scoreboard));
     }
 

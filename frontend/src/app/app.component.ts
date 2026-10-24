@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
 
   game: GameStateResponse | null = null;
   selectedMode: 'TwoPlayer' | 'Computer' = 'TwoPlayer';
+  selectedDifficulty: 'Unbeatable' | 'Standard' = 'Unbeatable';
   isLoading = false;
   errorMessage: string | null = null;
   isApiConnected = true;
@@ -33,15 +34,19 @@ export class AppComponent implements OnInit {
   }));
 
   ngOnInit() {
-    this.startNewGame(this.selectedMode);
+    this.startNewGame(this.selectedMode, this.selectedDifficulty);
   }
 
-  startNewGame(mode: 'TwoPlayer' | 'Computer' = this.selectedMode) {
+  startNewGame(
+    mode: 'TwoPlayer' | 'Computer' = this.selectedMode,
+    difficulty: 'Unbeatable' | 'Standard' = this.selectedDifficulty
+  ) {
     this.selectedMode = mode;
+    this.selectedDifficulty = difficulty;
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.ticTacToeService.createGame(mode).subscribe({
+    this.ticTacToeService.createGame(mode, difficulty).subscribe({
       next: (state) => {
         this.game = state;
         this.isLoading = false;
@@ -54,6 +59,11 @@ export class AppComponent implements OnInit {
         this.isApiConnected = false;
       }
     });
+  }
+
+  switchDifficulty(difficulty: 'Unbeatable' | 'Standard') {
+    if (this.selectedDifficulty === difficulty) return;
+    this.startNewGame(this.selectedMode, difficulty);
   }
 
   onCellClick(row: number, col: number) {

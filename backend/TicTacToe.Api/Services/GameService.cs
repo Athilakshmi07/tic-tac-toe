@@ -5,7 +5,7 @@ namespace TicTacToe.Api.Services;
 
 public interface IGameService
 {
-    GameState CreateGame(string? mode);
+    GameState CreateGame(string? mode, string? difficulty = GameConstants.DifficultyUnbeatable);
     GameState? GetGame(Guid id);
     GameState MakeMove(Guid id, string player, int row, int column);
     GameState UndoMove(Guid id);
@@ -26,16 +26,21 @@ public class GameService : IGameService
         _engine = engine;
     }
 
-    public GameState CreateGame(string? mode)
+    public GameState CreateGame(string? mode, string? difficulty = GameConstants.DifficultyUnbeatable)
     {
         var gameMode = (mode?.Equals(GameConstants.ModeComputer, StringComparison.OrdinalIgnoreCase) == true)
             ? GameConstants.ModeComputer
             : GameConstants.ModeTwoPlayer;
 
+        var gameDifficulty = (difficulty?.Equals(GameConstants.DifficultyStandard, StringComparison.OrdinalIgnoreCase) == true)
+            ? GameConstants.DifficultyStandard
+            : GameConstants.DifficultyUnbeatable;
+
         var game = new GameState
         {
             Id = Guid.NewGuid(),
             Mode = gameMode,
+            Difficulty = gameDifficulty,
             CurrentPlayer = GameConstants.PlayerX,
             Status = GameConstants.StatusInProgress,
             Board = new string[3][]
@@ -135,10 +140,10 @@ public class GameService : IGameService
             // Switch turn
             game.CurrentPlayer = (normalizedPlayer == GameConstants.PlayerX) ? GameConstants.PlayerO : GameConstants.PlayerX;
 
-            // If Computer Mode, execute computer's move
+            // If Computer Mode, execute computer's move with selected AI difficulty
             if (game.Mode == GameConstants.ModeComputer && game.CurrentPlayer == GameConstants.PlayerO)
             {
-                var compMove = _engine.GetBestComputerMove(game.Board);
+                var compMove = _engine.GetComputerMove(game.Board, game.Difficulty);
                 if (compMove != null)
                 {
                     game.Board[compMove.Row][compMove.Column] = GameConstants.PlayerO;

@@ -109,10 +109,8 @@ public class GameEngineTests
     public void GetBestComputerMove_Priority1_TakesWinningMove()
     {
         var board = CreateEmptyBoard();
-        // O can win at (0, 2)
         board[0][0] = "O";
         board[0][1] = "O";
-        // X also has 2 in row at (1, 0), (1, 1)
         board[1][0] = "X";
         board[1][1] = "X";
 
@@ -120,49 +118,46 @@ public class GameEngineTests
 
         Assert.NotNull(move);
         Assert.Equal(0, move.Row);
-        Assert.Equal(2, move.Column); // O wins instead of blocking X
+        Assert.Equal(2, move.Column);
     }
 
     [Fact]
     public void GetBestComputerMove_Priority2_BlocksOpponentWinningMove()
     {
         var board = CreateEmptyBoard();
-        // X can win at (2, 2)
         board[0][0] = "X";
         board[1][1] = "X";
-        // O has only one move
         board[0][1] = "O";
 
         var move = _engine.GetBestComputerMove(board);
 
         Assert.NotNull(move);
         Assert.Equal(2, move.Row);
-        Assert.Equal(2, move.Column); // Block X
+        Assert.Equal(2, move.Column);
     }
 
     [Fact]
     public void GetBestComputerMove_Priority3_TakesCenterIfAvailable()
     {
         var board = CreateEmptyBoard();
-        board[0][0] = "X"; // Human took corner
+        board[0][0] = "X";
 
         var move = _engine.GetBestComputerMove(board);
 
         Assert.NotNull(move);
         Assert.Equal(1, move.Row);
-        Assert.Equal(1, move.Column); // Center
+        Assert.Equal(1, move.Column);
     }
 
     [Fact]
     public void GetBestComputerMove_Priority4_TakesCornerIfCenterTaken()
     {
         var board = CreateEmptyBoard();
-        board[1][1] = "X"; // Human took center
+        board[1][1] = "X";
 
         var move = _engine.GetBestComputerMove(board);
 
         Assert.NotNull(move);
-        // Should be one of the corners (0,0), (0,2), (2,0), (2,2)
         bool isCorner = (move.Row == 0 && move.Column == 0) ||
                         (move.Row == 0 && move.Column == 2) ||
                         (move.Row == 2 && move.Column == 0) ||
@@ -174,7 +169,6 @@ public class GameEngineTests
     public void GetBestComputerMove_Priority5_TakesAnyAvailableCell()
     {
         var board = CreateEmptyBoard();
-        // Fill center and corners
         board[1][1] = "X";
         board[0][0] = "O";
         board[0][2] = "X";
@@ -184,7 +178,42 @@ public class GameEngineTests
         var move = _engine.GetBestComputerMove(board);
 
         Assert.NotNull(move);
-        // Only edges are left
+        bool isEdge = (move.Row == 0 && move.Column == 1) ||
+                      (move.Row == 1 && move.Column == 0) ||
+                      (move.Row == 1 && move.Column == 2) ||
+                      (move.Row == 2 && move.Column == 1);
+        Assert.True(isEdge);
+    }
+
+    [Fact]
+    public void GetMinimaxMove_ImmediateWin_TakesIt()
+    {
+        var board = CreateEmptyBoard();
+        board[0][0] = "O";
+        board[0][1] = "O";
+        board[1][0] = "X";
+        board[1][1] = "X";
+
+        var move = _engine.GetMinimaxMove(board);
+
+        Assert.NotNull(move);
+        Assert.Equal(0, move.Row);
+        Assert.Equal(2, move.Column);
+    }
+
+    [Fact]
+    public void GetMinimaxMove_BlocksOpponentFork_ChoosesSafeMove()
+    {
+        // Classic fork trap setup: X at opposite corners (0,0) and (2,2), O at center (1,1)
+        var board = CreateEmptyBoard();
+        board[0][0] = "X";
+        board[1][1] = "O";
+        board[2][2] = "X";
+
+        var move = _engine.GetMinimaxMove(board);
+
+        Assert.NotNull(move);
+        // Playing an edge (0,1), (1,0), (1,2), or (2,1) creates a counter-threat and prevents fork!
         bool isEdge = (move.Row == 0 && move.Column == 1) ||
                       (move.Row == 1 && move.Column == 0) ||
                       (move.Row == 1 && move.Column == 2) ||

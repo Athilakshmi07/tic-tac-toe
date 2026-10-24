@@ -60,7 +60,11 @@ This project is an enterprise-grade full-stack implementation of the classic Tic
   - Increments the winner's score on the session scoreboard.
 - **Draw Detection**: Accurately detects when all 9 cells are filled without a winner, locks the board, displays a draw banner, and increments the draw counter.
 
-### 🤖 Smart Computer Opponent Mode
+### 🤖 Smart Computer Opponent Mode (with Invincible Minimax & Standard AI)
+- Selectable game modes: **Two Player Mode** and **Vs Computer Mode**.
+- In Computer Mode, players can toggle between two AI engine levels:
+  - 🧠 **Master AI (Invincible Minimax)**: Evaluates the complete game-state search tree with recursive depth evaluation. Mathematically guaranteed **never to lose** — will always seize winning opportunities or force a draw against perfect play!
+  - 🎯 **Standard AI (Heuristic)**: Follows the original 5-tier rule priority specification.
 - Selectable game modes: **Two Player Mode** and **Vs Computer Mode**.
 - In Computer Mode:
   - Human player controls **X**; Computer automatically controls **O**.
@@ -288,3 +292,4 @@ npm test -- --watch=false --browsers=ChromeHeadless
 - **Real-Time Multiplayer**: Introduce SignalR (WebSockets) for remote head-to-head multiplayer across different browser windows or devices.
 - **Difficulty Settings**: Add selectable AI difficulty levels (e.g., Easy/Random, Medium/Heuristic, and Hard/Minimax algorithm).
 - **Expandable Board Dimensions**: Support 4×4 or 5×5 grid variants with customizable win lengths (e.g., Connect 4 style).
+

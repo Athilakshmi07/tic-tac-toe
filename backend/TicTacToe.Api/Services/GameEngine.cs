@@ -7,6 +7,8 @@ public interface IGameEngine
     (bool IsWin, string? Winner, List<CellCoordinate> WinningCells) CheckWin(string[][] board);
     bool IsBoardFull(string[][] board);
     CellCoordinate? GetBestComputerMove(string[][] board);
+    CellCoordinate? GetMinimaxMove(string[][] board);
+    CellCoordinate? GetComputerMove(string[][] board, string difficulty);
 }
 
 public class GameEngine : IGameEngine
@@ -72,6 +74,103 @@ public class GameEngine : IGameEngine
         return true;
     }
 
+    public CellCoordinate? GetComputerMove(string[][] board, string difficulty)
+    {
+        if (difficulty.Equals(GameConstants.DifficultyStandard, StringComparison.OrdinalIgnoreCase))
+        {
+            return GetBestComputerMove(board);
+        }
+
+        return GetMinimaxMove(board);
+    }
+
+    /// <summary>
+    /// Invincible Minimax Algorithm: Evaluates the complete game tree.
+    /// Player O is maximizing (+10), Player X is minimizing (-10).
+    /// Mathematically impossible to lose: always wins on opponent error or forces draw.
+    /// </summary>
+    public CellCoordinate? GetMinimaxMove(string[][] board)
+    {
+        int bestScore = int.MinValue;
+        CellCoordinate? bestMove = null;
+
+        // Iterate over empty cells
+        for (int r = 0; r < 3; r++)
+        {
+            for (int c = 0; c < 3; c++)
+            {
+                if (string.IsNullOrEmpty(board[r][c]))
+                {
+                    board[r][c] = GameConstants.PlayerO;
+                    int score = Minimax(board, 0, false);
+                    board[r][c] = GameConstants.EmptyCell;
+
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestMove = new CellCoordinate(r, c);
+                    }
+                }
+            }
+        }
+
+        return bestMove;
+    }
+
+    private int Minimax(string[][] board, int depth, bool isMaximizing)
+    {
+        var (isWin, winner, _) = CheckWin(board);
+        if (isWin)
+        {
+            return (winner == GameConstants.PlayerO) ? (10 - depth) : (depth - 10);
+        }
+
+        if (IsBoardFull(board))
+        {
+            return 0;
+        }
+
+        if (isMaximizing)
+        {
+            int maxEval = int.MinValue;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    if (string.IsNullOrEmpty(board[r][c]))
+                    {
+                        board[r][c] = GameConstants.PlayerO;
+                        int eval = Minimax(board, depth + 1, false);
+                        board[r][c] = GameConstants.EmptyCell;
+                        maxEval = Math.Max(maxEval, eval);
+                    }
+                }
+            }
+            return maxEval;
+        }
+        else
+        {
+            int minEval = int.MaxValue;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    if (string.IsNullOrEmpty(board[r][c]))
+                    {
+                        board[r][c] = GameConstants.PlayerX;
+                        int eval = Minimax(board, depth + 1, true);
+                        board[r][c] = GameConstants.EmptyCell;
+                        minEval = Math.Min(minEval, eval);
+                    }
+                }
+            }
+            return minEval;
+        }
+    }
+
+    /// <summary>
+    /// Standard 5-tier Priority Heuristic (as defined in original specification)
+    /// </summary>
     public CellCoordinate? GetBestComputerMove(string[][] board)
     {
         // Priority 1: If O can win, play the winning move

@@ -93,6 +93,35 @@
             <span class="mode-text">Vs Computer</span>
           </button>
         </div>
+
+        <!-- AI Strength Selector (shown when Vs Computer is active) -->
+        <div *ngIf="selectedMode === 'Computer'" class="difficulty-control-wrapper">
+          <div class="difficulty-pill-toggle">
+            <button
+              id="diff-unbeatable"
+              class="diff-btn"
+              [class.active]="selectedDifficulty === 'Unbeatable'"
+              (click)="switchDifficulty('Unbeatable')"
+              title="Invincible Minimax AI — Impossible to defeat, plays optimal moves"
+            >
+              <span class="diff-icon">🧠</span>
+              <span>Master AI (Invincible)</span>
+            </button>
+            <button
+              id="diff-standard"
+              class="diff-btn"
+              [class.active]="selectedDifficulty === 'Standard'"
+              (click)="switchDifficulty('Standard')"
+              title="Standard Heuristic AI — Follows rule priority"
+            >
+              <span class="diff-icon">🎯</span>
+              <span>Standard AI</span>
+            </button>
+          </div>
+          <p class="difficulty-hint" *ngIf="selectedDifficulty === 'Unbeatable'">
+            🔥 <strong>Master Mode Active</strong>: Uses full Minimax tree lookahead. The computer cannot be beaten!
+          </p>
+        </div>
       </div>
 
       <!-- Neon Glass Scoreboard -->
@@ -124,7 +153,7 @@
           <div class="score-card-glow"></div>
           <div class="score-badge">
             <span class="player-symbol-o">◯</span>
-            <span class="player-name">{{ g.mode === 'Computer' ? 'Computer (O)' : 'Player O' }}</span>
+            <span class="player-name">{{ g.mode === 'Computer' ? (g.difficulty === 'Unbeatable' ? 'Master AI (O)' : 'Computer (O)') : 'Player O' }}</span>
           </div>
           <div class="score-value">{{ sb.oWins }}</div>
           <div class="score-stat-label">Victories</div>
